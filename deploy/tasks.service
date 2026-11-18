@@ -1,0 +1,32 @@
+[Unit]
+Description=Tasks (self-hosted to-do lists)
+After=network.target
+
+[Service]
+Type=simple
+User=tasks
+Group=tasks
+WorkingDirectory=/opt/tasks
+EnvironmentFile=/etc/tasks/tasks.env
+ExecStart=/opt/tasks/.venv/bin/python -m tasks
+Restart=on-failure
+RestartSec=3
+RestartPreventExitStatus=2
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+MemoryMax=256M
+CapabilityBoundingSet=
+ReadWritePaths=/var/lib/tasks
+
+[Install]
+WantedBy=multi-user.target

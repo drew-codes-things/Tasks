@@ -1,0 +1,39 @@
+
+http://__SITE_HOST__ {
+	request_header -X-Forwarded-User
+	handle_path /signin/* {
+		root * /srv/signin/tasks
+		header Cache-Control "no-cache"
+		header X-Content-Type-Options nosniff
+		header X-Frame-Options DENY
+		header Referrer-Policy same-origin
+		file_server
+	}
+	@sign_in_api path /api/auth/login
+	handle @sign_in_api {
+		reverse_proxy 127.0.0.1:8090
+	}
+	@signed_out {
+		not header Cookie *starfire_session=*
+		not path /signin/* /api/auth/login
+	}
+	redir @signed_out /signin/ 303
+	handle {
+		forward_auth 127.0.0.1:8090 {
+			uri /api/auth/users
+			header_up -Upgrade
+			header_up -Connection
+			@session_rejected status 401
+			handle_response @session_rejected {
+				redir * /signin/ 303
+			}
+			@not_admin status 403
+			handle_response @not_admin {
+				respond "Tasks is for the admin account only." 403
+			}
+		}
+		reverse_proxy 127.0.0.1:__PORT__ {
+			header_up X-Forwarded-User __SIGNED_IN_USER__
+		}
+	}
+}

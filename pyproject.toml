@@ -1,0 +1,23 @@
+[project]
+name = "tasks"
+dynamic = ["version"]
+description = "Self-hosted to-do lists with repeats and quick add, your own free take on Todoist and Google Tasks"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = ["flask==3.1.3", "waitress==3.0.2"]
+
+[project.optional-dependencies]
+dev = ["pytest==9.1.1"]
+
+[tool.setuptools.dynamic]
+version = { attr = "tasks.__version__" }
+
+[tool.setuptools.packages.find]
+include = ["tasks*"]
+
+[tool.setuptools.package-data]
+tasks = ["static/*", "static/fonts/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]

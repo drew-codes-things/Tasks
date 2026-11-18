@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#19191c">
+<title>Tasks</title>
+<link rel="icon" href="/static/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/import-parts.js" defer></script>
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/" aria-label="Tasks home">
+    <img src="/static/icon.svg" alt="" width="28" height="28">
+    <span class="brand-name">Tasks</span>
+  </a>
+  <label class="search">
+    <span class="visually-hidden">Search tasks</span>
+    <input id="search" type="search" placeholder="Search tasks and notes" maxlength="200" autocomplete="off">
+  </label>
+  <button class="icon-btn" type="button" id="keys-btn" title="Keyboard keys (?)" aria-label="Keyboard keys">?</button>
+</header>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="Views and lists">
+    <div class="views">
+      <button class="view-btn" type="button" data-view="today">Today <span id="count-today" class="badge" hidden></span></button>
+      <button class="view-btn" type="button" data-view="upcoming">Upcoming <span id="count-upcoming" class="count" hidden></span></button>
+      <button class="view-btn" type="button" data-view="completed">Completed</button>
+      <button class="view-btn" type="button" data-view="bin">Bin <span id="count-bin" class="count" hidden></span></button>
+    </div>
+    <div class="lists-head">
+      <h2 class="section-title">Lists</h2>
+      <button class="icon-btn small" type="button" id="new-list" title="New list" aria-label="New list">+</button>
+    </div>
+    <div class="list-nav" id="list-nav"></div>
+    <div class="transfer">
+      <a class="btn ghost" href="/api/export" download>Export</a>
+      <button class="btn ghost" type="button" id="import-btn">Import</button>
+      <button class="btn ghost" type="button" id="todoist-btn">From Todoist</button>
+      <input id="import-file" type="file" accept="application/json,.json" hidden>
+      <input id="todoist-file" type="file" accept="text/csv,.csv" hidden>
+    </div>
+  </nav>
+
+  <main class="content">
+    <div class="view-head">
+      <h1 class="view-title" id="view-title">Today</h1>
+      <span class="view-date" id="view-date"></span>
+      <span class="spacer"></span>
+      <button class="btn ghost" type="button" id="list-rename" hidden>Rename</button>
+      <button class="btn ghost" type="button" id="list-delete" hidden>Delete list</button>
+      <button class="btn" type="button" id="bin-empty" hidden>Empty bin</button>
+    </div>
+
+    <form id="quick-add" class="quick-add" autocomplete="off">
+      <label class="visually-hidden" for="quick-text">Add a task</label>
+      <input id="quick-text" class="quick-text" placeholder="Add a task: dentist fri 9:30 !1 #health" maxlength="1000">
+      <button class="btn send" type="submit">Add</button>
+      <p id="quick-preview" class="quick-preview" aria-live="polite"></p>
+    </form>
+
+    <div id="filter-line" class="filter-line" hidden>
+      <span id="filter-text"></span>
+      <button class="btn ghost" type="button" id="filter-clear">Clear</button>
+    </div>
+    <p id="bin-note" class="filter-line" hidden>Tasks in the bin are deleted for good after 30 days.</p>
+    <p id="more-note" class="filter-line" hidden></p>
+
+    <div id="groups" class="groups"></div>
+    <p id="empty-state" class="empty-state" hidden></p>
+  </main>
+</div>
+
+<dialog id="editor" class="dialog editor" aria-labelledby="editor-heading">
+  <form id="editor-form" method="dialog" autocomplete="off">
+    <h2 class="visually-hidden" id="editor-heading">Edit task</h2>
+    <p id="editor-parent" class="editor-parent" hidden></p>
+    <input id="editor-title" class="editor-title" placeholder="Title" maxlength="500" required aria-label="Title">
+    <textarea id="editor-notes" class="editor-notes" placeholder="Notes" rows="3" maxlength="10000" aria-label="Notes"></textarea>
+    <div class="editor-grid">
+      <label class="field"><span>Due date</span><input id="editor-date" type="date" min="1900-01-01" max="2999-12-31"></label>
+      <label class="field"><span>Time</span><input id="editor-time" type="time"></label>
+      <label class="field"><span>Priority</span>
+        <select id="editor-priority">
+          <option value="1">1, highest</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4, lowest</option>
+        </select>
+      </label>
+      <label class="field"><span>List</span><select id="editor-list"></select></label>
+      <label class="field"><span>Repeat</span>
+        <select id="editor-repeat">
+          <option value="">Does not repeat</option>
+          <option value="daily">Every day</option>
+          <option value="weekdays">Every weekday</option>
+          <option value="weekly">Weekly on</option>
+          <option value="monthly">Monthly on day</option>
+          <option value="interval">Every few days</option>
+        </select>
+      </label>
+      <div class="field" id="repeat-days" hidden>
+        <span>Days</span>
+        <div class="day-toggles" id="repeat-day-toggles"></div>
+      </div>
+      <label class="field" id="repeat-month-day" hidden><span>Day of the month</span><input id="editor-month-day" type="number" min="1" max="31" step="1"></label>
+      <label class="field" id="repeat-interval" hidden><span>Every how many days</span><input id="editor-interval" type="number" min="1" max="365" step="1"></label>
+    </div>
+    <div id="editor-subtasks" class="editor-subtasks">
+      <h3 class="section-title">Subtasks</h3>
+      <ul id="editor-subtask-list" class="subtask-list"></ul>
+      <input id="editor-new-subtask" class="editor-new-subtask" placeholder="Add a subtask and press Enter" maxlength="1000" aria-label="New subtask">
+    </div>
+    <div class="dialog-actions">
+      <button class="btn" type="button" id="editor-trash">Move to bin</button>
+      <span class="spacer"></span>
+      <button class="btn ghost" type="button" id="editor-cancel">Cancel</button>
+      <button class="btn send" type="submit" id="editor-save">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="list-dialog" class="dialog" aria-labelledby="list-dialog-title">
+  <form id="list-form" method="dialog" autocomplete="off">
+    <h2 class="dialog-title" id="list-dialog-title">New list</h2>
+    <input id="list-name" class="editor-input" maxlength="50" required aria-label="List name">
+    <div class="dialog-actions">
+      <button class="btn ghost" type="button" data-close>Cancel</button>
+      <button class="btn send" type="submit">Save</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="keys-dialog" class="dialog" aria-labelledby="keys-title">
+  <h2 class="dialog-title" id="keys-title">Keyboard keys</h2>
+  <dl class="keys">
+    <dt><kbd>q</kbd></dt><dd>Add a task</dd>
+    <dt><kbd>j</kbd></dt><dd>Next task</dd>
+    <dt><kbd>k</kbd></dt><dd>Previous task</dd>
+    <dt><kbd>x</kbd></dt><dd>Done or not done</dd>
+    <dt><kbd>e</kbd></dt><dd>Edit the task</dd>
+    <dt><kbd>Del</kbd></dt><dd>Move to the bin</dd>
+    <dt><kbd>t</kbd></dt><dd>Today</dd>
+    <dt><kbd>u</kbd></dt><dd>Upcoming</dd>
+    <dt><kbd>i</kbd></dt><dd>Inbox</dd>
+    <dt><kbd>c</kbd></dt><dd>Completed</dd>
+    <dt><kbd>/</kbd></dt><dd>Search</dd>
+    <dt><kbd>Esc</kbd></dt><dd>Leave the box you are typing in</dd>
+    <dt><kbd>?</kbd></dt><dd>This list</dd>
+  </dl>
+  <h3 class="section-title">Quick add</h3>
+  <dl class="keys">
+    <dt><kbd>tomorrow 5pm</kbd></dt><dd>today, tomorrow, fri, next mon, 1 dec, 25/12, in 3 days, 9:30, at 9</dd>
+    <dt><kbd>every mon, thu</kbd></dt><dd>daily, every weekday, weekly, every month on the 1st, every 3 days</dd>
+    <dt><kbd>!1</kbd></dt><dd>Priority 1 (highest) to 4</dd>
+    <dt><kbd>#health</kbd></dt><dd>List, made if it is new</dd>
+    <dt><kbd>"fri"</kbd></dt><dd>Words in double quotes stay in the title</dd>
+  </dl>
+  <div class="dialog-actions">
+    <button class="btn send" type="button" data-close>Close</button>
+  </div>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
