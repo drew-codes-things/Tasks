@@ -43,6 +43,11 @@ def test_export_then_import_gives_the_same_tasks(store, tmp_path, clock):
     assert [entry["name"] for entry in other.lists()] == ["Inbox", "Empty list", "Work"]
 
 
+def test_an_import_from_another_app_is_refused_by_the_starfire_tasks_name(store):
+    with pytest.raises(TaskError, match="this is not a Starfire Tasks export"):
+        import_tasks(store, {"app": "something-else"})
+
+
 def test_import_adds_and_never_replaces(store):
     seed(store)
     exported = export_tasks(store)

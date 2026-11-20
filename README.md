@@ -1,6 +1,6 @@
 <div align="center">
 
-# Tasks
+# Starfire Tasks
 
 **Your own free take on Todoist and Google Tasks. To-do lists with due dates, priorities, subtasks, repeats and a quick add line that understands "dentist fri 9:30 !1 #health", kept in one SQLite file on your own server.**
 
@@ -11,17 +11,17 @@
 
 </div>
 
-![Tasks showing the Today view with an overdue task, today's tasks, priorities, a repeat and the quick add line](screenshot.png)
+![Starfire Tasks showing the Today view with an overdue task, today's tasks, priorities, a repeat and the quick add line](screenshot.png)
 
 ---
 
 ## Overview
 
-Tasks is a small self-hosted to-do app. It has its own sign-in for one
+Starfire Tasks is a small self-hosted to-do app. It has its own sign-in for one
 owner account, so a copy runs on its own. It can also sit behind a sign-in
 proxy: the author runs it behind the starfire sign-in like Keep Notes and
 Read Later, where Caddy checks the sign-in, then passes the request to
-Tasks on `127.0.0.1`.
+Starfire Tasks on `127.0.0.1`.
 
 - **Tasks** with a title, notes, a due date with an optional time, and a
   priority from 1 (highest) to 4 (lowest, the default).
@@ -134,7 +134,7 @@ machine: it then refuses to listen on anything but `127.0.0.1`, `::1` or
 
 ## First run and sign-in
 
-Tasks has its own sign-in, switched on by default (`AUTH_MODE=builtin`).
+Starfire Tasks has its own sign-in, switched on by default (`AUTH_MODE=builtin`).
 There is one owner account and no sign-up page.
 
 1. Start it (`.venv/bin/python -m tasks`) and open
@@ -225,7 +225,7 @@ from those addresses; in the default mode it is never read.
   `/api/auth/users` (the admin account only), and then sets
   `X-Forwarded-User` itself, to `SIGNED_IN_USER` from `deploy/site.env`.
   `ALLOWED_USERS` in the server env file is set to the same name and makes
-  Tasks refuse anything else.
+  Starfire Tasks refuse anything else.
 - Every write (`POST`, `PATCH`, `DELETE`), the Arty API included, needs the
   `X-CSRF-Token` header from `/api/session`, an HMAC of the user made with
   the secret key. A write whose `Origin` is a different host is refused too.
@@ -316,11 +316,11 @@ systemctl start tasks
 > **UNTESTED.** `deploy.sh` and this section were written without touching
 > the live server. Read the script before running it.
 
-On that server Tasks trusts the gate instead of its own sign-in:
+On that server Starfire Tasks trusts the gate instead of its own sign-in:
 `deploy/tasks.env` sets `AUTH_MODE=proxy` and
 `TRUSTED_PROXIES=127.0.0.1,::1`.
 
-`deploy.sh` installs Tasks into a Proxmox container that already runs Caddy
+`deploy.sh` installs Starfire Tasks into a Proxmox container that already runs Caddy
 and the starfire sign-in, reached with `ssh` and `pct`. The values for your
 own setup live in `deploy/site.env`, which git ignores. Copy
 `deploy/site.env.example` and fill it in:
@@ -329,7 +329,7 @@ own setup live in `deploy/site.env`, which git ignores. Copy
 |---|---|
 | `PROXMOX` | The ssh host name of the Proxmox machine. |
 | `CT` | The number of the container that runs Caddy. |
-| `SITE_HOST` | The host name Tasks is served on, like `tasks.example.com`. |
+| `SITE_HOST` | The host name Starfire Tasks is served on, like `tasks.example.com`. |
 | `SIGNED_IN_USER` | The starfire admin account name; Caddy passes it on and it becomes `ALLOWED_USERS`. |
 
 What it sets up, matching Keep Notes and Read Later:
@@ -360,7 +360,7 @@ it, so moving the app to another port means changing that one line and running
 The Caddyfile is checked with `caddy validate` before every reload and put back
 if it does not validate, and the sha256 of every deployed file is compared with
 the commit. If `systemctl reload caddy` fails, the Caddyfile is put back too,
-so a block Caddy never loaded is never left on disk. With Tasks already
+so a block Caddy never loaded is never left on disk. With Starfire Tasks already
 running, a `PORT` that another program listens on is refused as well (the
 listener's process must be the tasks service's own). `check` also fails when
 the marked block sends to another port than `PORT`. Each `apply` and `undo`

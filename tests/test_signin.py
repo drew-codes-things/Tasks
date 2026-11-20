@@ -121,6 +121,12 @@ def test_the_env_example_uses_the_builtin_sign_in(monkeypatch, tmp_path):
     assert settings_with(monkeypatch, tmp_path).auth_mode == "builtin"
 
 
+def test_the_builtin_pages_are_named_starfire_tasks(web):
+    page = web.get("/setup").get_data(as_text=True)
+    assert "<title>Set up - Starfire Tasks</title>" in page
+    assert "<h1>Starfire Tasks</h1>" in page
+
+
 def test_a_signed_out_page_goes_to_setup_then_to_sign_in(web, password_auth):
     assert web.get("/").headers["Location"].endswith("/setup")
     set_up_owner(web, password_auth)

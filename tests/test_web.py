@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 from conftest import OWNER, SECRET
 
@@ -36,7 +38,9 @@ def test_pages_need_a_user_too(client, owner):
     assert client.get("/").status_code == 401
     page = owner.get("/")
     assert page.status_code == 200
-    assert b"<title>Tasks</title>" in page.data
+    assert b"<title>Starfire Tasks</title>" in page.data
+    assert b'aria-label="Starfire Tasks home"' in page.data
+    assert b'<span class="brand-name">Starfire Tasks</span>' in page.data
 
 
 def test_session_names_the_user_and_hands_out_a_csrf_token(owner):
@@ -281,3 +285,9 @@ def test_the_session_names_the_import_limits_and_an_import_can_be_checked_first(
     assert owner.get(f"/api/tasks?view=list&list={INBOX_ID}").get_json()["tasks"] == []
     assert owner.post("/api/import?check=1", json={**payload, "tasks": [{}]}).status_code == 400
     assert owner.post("/api/import", json=payload).get_json() == {"imported": 1}
+
+
+def test_the_import_error_in_the_page_names_starfire_tasks():
+    script = (Path(__file__).resolve().parent.parent / "tasks" / "static" / "app.js").read_text()
+    assert "That file is not a Starfire Tasks export" in script
+    assert "`${title} - Starfire Tasks`" in script

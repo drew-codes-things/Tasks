@@ -294,7 +294,7 @@ function renderTasks() {
 function renderHead() {
   const title = isListView() ? currentListName() : VIEW_NAMES[state.view];
   byId('view-title').textContent = title;
-  document.title = `${title} - Tasks`;
+  document.title = `${title} - Starfire Tasks`;
   byId('view-date').textContent = state.view === 'today' && state.today ? parseDay(state.today).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' }) : '';
   const isOwnList = isListView() && state.listId !== INBOX_ID;
   byId('list-rename').hidden = !isOwnList;
@@ -636,7 +636,7 @@ async function readExport(file) {
   try {
     return JSON.parse(await file.text());
   } catch (error) {
-    reportError(error instanceof SyntaxError ? new Error('That file is not a Tasks export') : error);
+    reportError(error instanceof SyntaxError ? new Error('That file is not a Starfire Tasks export') : error);
     return null;
   }
 }

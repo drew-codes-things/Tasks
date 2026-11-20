@@ -14,7 +14,7 @@ from .store import LARGEST_DATABASE_INTEGER, TaskStore
 from .transfer import MAX_IMPORT_LISTS, MAX_IMPORT_TASKS, export_tasks, import_todoist_csv, import_tasks
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
-APP_NAME = "Tasks"
+APP_NAME = "Starfire Tasks"
 MAX_REQUEST_BYTES = 10 * 1024 * 1024
 MAX_ID_DIGITS = 19
 CSRF_HEADER = "X-CSRF-Token"

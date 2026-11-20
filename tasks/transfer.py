@@ -82,7 +82,7 @@ def _imported_task(raw, position: int) -> dict:
 
 def import_tasks(store: TaskStore, payload, check_only: bool = False) -> int:
     if not isinstance(payload, dict) or payload.get("app") != APP_NAME:
-        raise TaskError("this is not a Tasks export")
+        raise TaskError("this is not a Starfire Tasks export")
     if payload.get("version") != EXPORT_VERSION:
         raise TaskError(f"this export is version {payload.get('version')!r}, only version {EXPORT_VERSION} can be read")
     lists, tasks = payload.get("lists", []), payload.get("tasks")

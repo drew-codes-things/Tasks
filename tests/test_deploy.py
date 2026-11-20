@@ -595,3 +595,12 @@ def test_the_laptop_side_refuses_a_site_value_that_is_not_plain(tmp_path, name, 
     assert result.returncode == 1
     assert f"{name} in" in result.stdout
     assert calls == ""
+
+
+def test_the_caddy_refusal_names_starfire_tasks():
+    block = (REPO / "deploy" / "Caddyfile.tasks").read_text()
+    assert 'respond "Starfire Tasks is for the admin account only." 403' in block
+
+
+def test_the_sign_in_page_is_built_as_starfire_tasks():
+    assert "--first Starfire --second Tasks --tagline" in (REPO / "deploy.sh").read_text()
