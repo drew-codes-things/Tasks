@@ -29,7 +29,7 @@ http://__SITE_HOST__ {
 			}
 			@not_admin status 403
 			handle_response @not_admin {
-				respond "Starfire Tasks is for the admin account only." 403
+				respond "Starfire Tasks is only for the admin account, so this account cannot open it. Sign in with the admin account instead, or ask the admin for what you need." 403
 			}
 		}
 		reverse_proxy 127.0.0.1:__PORT__ {

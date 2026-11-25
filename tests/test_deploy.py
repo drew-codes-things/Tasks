@@ -599,8 +599,16 @@ def test_the_laptop_side_refuses_a_site_value_that_is_not_plain(tmp_path, name, 
 
 def test_the_caddy_refusal_names_starfire_tasks():
     block = (REPO / "deploy" / "Caddyfile.tasks").read_text()
-    assert 'respond "Starfire Tasks is for the admin account only." 403' in block
+    assert 'respond "Starfire Tasks is only for the admin account, so this account cannot open it. Sign in with the admin account instead, or ask the admin for what you need." 403' in block
 
 
 def test_the_sign_in_page_is_built_as_starfire_tasks():
     assert "--first Starfire --second Tasks --tagline" in (REPO / "deploy.sh").read_text()
+
+
+def test_the_caddy_refusal_says_who_the_app_is_for_and_what_to_do_instead():
+    refusal = re.search(r'respond "([^"]+)" 403', next((REPO / "deploy").glob("Caddyfile.*")).read_text()).group(1)
+    assert refusal.startswith("Starfire Tasks is only for the admin account")
+    assert "Sign in with the admin account instead" in refusal
+    assert "ask the admin" in refusal
+    assert len(refusal) < 200
